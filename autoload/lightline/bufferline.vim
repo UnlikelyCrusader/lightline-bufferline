@@ -195,7 +195,7 @@ function! s:buffer_category(buffer)
 endfunction
 
 function! s:filter_buffer(i)
-  return bufexists(a:i) && buflisted(a:i) && getbufvar(a:i, '&filetype') !=# 'qf'
+  return bufexists(a:i) && getbufvar(a:i, '&filetype') !=# 'qf'
        \ && s:tabpage_filter(a:i) && s:buffer_category(a:i) != ''
 endfunction
 
@@ -216,12 +216,9 @@ function! s:order_comparator(first, second) abort
   return s:get_order(a:first) - s:get_order(a:second)
 endfunction
 
+let s:category = 'default'
 function! s:filtered_buffers(...)
-  let l:category = get(a:, 1, s:buffer_category(bufnr('%')))
-  if l:category == ''
-    let l:category = 'default'
-  endif
-  let l:filter_expr = 's:filter_buffer(v:val) && s:buffer_category(v:val) == l:category'
+  let l:filter_expr = 's:filter_buffer(v:val) && (s:buffer_category(v:val) == s:category || s:buffer_category(v:val) == "default")'
   let l:buffers = filter(range(1, bufnr('$')), l:filter_expr)
   if s:reverse_buffers == 1
     let l:buffers = reverse(l:buffers)
@@ -570,16 +567,14 @@ function! lightline#bufferline#go_relative_category(offset)
     return
   endif
 
-  let l:current_category = s:buffer_category(bufnr('%'))
-  let l:current_index = index(l:categories, l:current_category)
+  let l:current_index = index(l:categories, s:category)
   if l:current_index < 0
+    let s:category = 'default'
     return
   endif
 
   let l:new_index = s:clamp(l:current_index + a:offset, len(l:categories))
-  let l:new_category = l:categories[l:new_index]
-  let l:buffer = s:filtered_buffers(l:new_category)[0]
-  execute 'b' .. l:buffer
+  let s:category = l:categories[l:new_index]
 endfunction
 
 function! lightline#bufferline#go_next_category()
