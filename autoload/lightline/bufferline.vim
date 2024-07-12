@@ -608,6 +608,10 @@ function! lightline#bufferline#reset_order() abort
   call s:force_update()
 endfunction
 
+function! lightline#bufferline#force_update() abort
+  call s:force_update()
+endfunction
+
 " Avoid repeated calls to s:filtered_buffers() in callers
 function! s:move(target, buffers) abort
   let l:target = a:target - 1
