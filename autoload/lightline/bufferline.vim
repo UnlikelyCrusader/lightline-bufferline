@@ -674,6 +674,14 @@ function! lightline#bufferline#move_last() abort
   return s:move(len(l:buffers), l:buffers)
 endfunction
 
+function! lightline#bufferline#current_category() abort
+    return s:category
+endfunction
+
+function! lightline#bufferline#get_categories() abort
+    return s:get_all_categories()
+endfunction
+
 call lightline#bufferline#load()
 
 autocmd User LightlineBufferlinePreClick call s:pre_click_handler()
