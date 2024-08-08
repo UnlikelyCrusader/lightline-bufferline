@@ -20,11 +20,13 @@ function! lightline#bufferline#load()
   let s:buffer_number_map   = get(g:, 'lightline#bufferline#buffer_number_map', {})
   let s:composed_ordinal_number_map = get(g:, 'lightline#bufferline#composed_ordinal_number_map', get(g:, 'lightline#bufferline#composed_number_map', {}))
   let s:composed_buffer_number_map = get(g:, 'lightline#bufferline#composed_buffer_number_map', {})
+  let s:composed_window_number_map = get(g:, 'lightline#bufferline#composed_window_number_map', {})
   let s:shorten_path        = get(g:, 'lightline#bufferline#shorten_path', 1)
   let s:smart_path          = get(g:, 'lightline#bufferline#smart_path', 1)
   let s:show_number         = get(g:, 'lightline#bufferline#show_number', 0)
   let s:number_separator    = get(g:, 'lightline#bufferline#number_separator', ' ')
   let s:ordinal_separator   = get(g:, 'lightline#bufferline#ordinal_separator', '')
+  let s:window_separator    = get(g:, 'lightline#bufferline#window_separator', ' ')
   let s:unnamed             = get(g:, 'lightline#bufferline#unnamed', '*')
   let s:reverse_buffers     = get(g:, 'lightline#bufferline#reverse_buffers', 0)
   let s:right_aligned       = get(g:, 'lightline#bufferline#right_aligned', 0)
@@ -158,6 +160,13 @@ function! s:get_number(i, buffer)
     return s:get_from_number_map(a:buffer, s:composed_buffer_number_map, s:buffer_number_map) . s:ordinal_separator . s:get_from_number_map(a:i + 1, s:composed_ordinal_number_map, s:ordinal_number_map) . s:number_separator
   elseif s:show_number == 4
     return s:get_from_number_map(a:i + 1, s:composed_ordinal_number_map, s:ordinal_number_map) . s:ordinal_separator . s:get_from_number_map(a:buffer, s:composed_buffer_number_map, s:buffer_number_map) . s:number_separator
+  elseif s:show_number == 5
+    let number = s:get_from_number_map(a:buffer, s:composed_buffer_number_map, s:buffer_number_map)
+    let win_str = join(map(filter(map(win_findbuf(number), "v:val->win_id2win()"), "v:val > 0"), "s:get_from_number_map(v:val, s:composed_window_number_map, {})"), ",")
+    if win_str
+      let win_str .= s:window_separator
+    endif
+    return s:get_from_number_map(a:i + 1, s:composed_ordinal_number_map, s:ordinal_number_map) . s:ordinal_separator . number . s:number_separator . win_str
   endif
 
   return ''
